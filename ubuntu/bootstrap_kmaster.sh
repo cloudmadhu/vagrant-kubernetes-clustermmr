@@ -1,26 +1,18 @@
 #!/bin/bash
 
 echo "[TASK 1] Pull required containers"
-# 国内环境会卡死在这，采用下面曲线救国的方式来解决
-# kubeadm config images pull >/dev/null 2>&1
 
-# ctr images pull registry.aliyuncs.com/k8sxio/kube-apiserver:v1.22.2 >/dev/null 2>&1
-# ctr images pull registry.aliyuncs.com/k8sxio/kube-controller-manager:v1.22.2 >/dev/null 2>&1
-# ctr images pull registry.aliyuncs.com/k8sxio/kube-scheduler:v1.22.2 >/dev/null 2>&1
-# ctr images pull registry.aliyuncs.com/k8sxio/kube-proxy:v1.22.2 >/dev/null 2>&1
-# ctr images pull registry.aliyuncs.com/k8sxio/pause:3.5 >/dev/null 2>&1
-# ctr images pull registry.aliyuncs.com/k8sxio/etcd:3.5.0-0 >/dev/null 2>&1
-# ctr -n k8s.io images pull docker.io/v5cn/coredns:v1.8.4 >/dev/null 2>&1
-# ctr -n k8s.io images tag docker.io/v5cn/coredns:v1.8.4 registry.aliyuncs.com/k8sxio/coredns:v1.8.4 >/dev/null 2>&1
-
-# 曲线救国，拉取kubernetes所需镜像
-kubeadm config images list | grep -v 'coredns' | sed 's#k8s.gcr.io#ctr images pull registry.aliyuncs.com\/k8sxio#g' > images.sh
-# registry.aliyuncs.com/k8sxio 仓库中没有coredns镜像，再次曲线救国拉取coredns镜像
-# containerd环境下镜像存在namespace隔离，kubernetes的镜像在k8s.io namespace下，因此需要指定namespace
-# 拉取到镜像后，将镜像标记为registry.aliyuncs.com/k8sxio/coredns:v1.8.4 后面的 kubeadm init 指定了image-repository为registry.aliyuncs.com/k8sxio
+kubeadm config images list | grep -v 'coredns' > images.sh
 cat >> images.sh<<EOF
+ctr images pull k8s.gcr.io/kube-apiserver:v1.22.2
+ctr images pull k8s.gcr.io/kube-controller-manager:v1.22.2
+ctr images pull k8s.gcr.io/kube-scheduler:v1.22.2
+ctr images pull k8s.gcr.io/kube-proxy:v1.22.2
+ctr images pull k8s.gcr.io/pause:3.5
+ctr images pull k8s.gcr.io/etcd:3.5.0-0
+ctr images pull k8s.gcr.io/coredns/coredns:v1.8.4
 ctr -n k8s.io images pull docker.io/v5cn/coredns:v1.8.4
-ctr -n k8s.io images tag docker.io/v5cn/coredns:v1.8.4 registry.aliyuncs.com/k8sxio/coredns:v1.8.4
+ctr -n k8s.io images tag docker.io/v5cn/coredns:v1.8.4
 EOF
 chmod +x images.sh && ./images.sh >/dev/null 2>&1
 

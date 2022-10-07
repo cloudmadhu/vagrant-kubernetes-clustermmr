@@ -22,20 +22,9 @@ ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
 
 echo "[TASK 2] Setting Ubuntu System Mirrors"
 cat >/etc/apt/sources.list<<EOF
-# deb http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
-# deb-src http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
+  deb mirror://mirrors.ubuntu.com/mirrors.txt focal main restricted universe multiverse
+  deb http://us.archive.ubuntu.com/ubuntu/ focal main restricted universe multiverse
 
-# deb http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
-# deb-src http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
-
-# deb http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
-# deb-src http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
-
-# deb http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse
-# deb-src http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse
-
-# deb http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
-# deb-src http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
 EOF
 apt update -qq >/dev/null 2>&1
 
@@ -66,16 +55,9 @@ echo "[TASK 7] Install containerd runtime"
 apt install -qq -y containerd apt-transport-https >/dev/null 2>&1
 mkdir /etc/containerd
 containerd config default > /etc/containerd/config.toml
-# 配置containerd镜像源
-# 替换k8s.gcr.io为registry.aliyuncs.com/k8sxio
-# 替换https://registry-1.docker.io为https://registry.cn-hangzhou.aliyuncs.com
-# 设置docker.io的镜像地址为https://bqr1dr1n.mirror.aliyuncs.com
-# 设置k8s.gcr.io的镜像地址为https://registry.aliyuncs.com/k8sxio
-#sed -i "s#k8s.gcr.io#registry.aliyuncs.com/k8sxio#g"  /etc/containerd/config.toml
+
 sed -i 's#SystemdCgroup = false#SystemdCgroup = true#g' /etc/containerd/config.toml
-#sed -i "s#https://registry-1.docker.io#https://registry.cn-hangzhou.aliyuncs.com#g"  /etc/containerd/config.toml
-#sed -i '/\[plugins\.\"io\.containerd\.grpc\.v1\.cri\"\.registry\.mirrors\]/ a\\ \ \ \ \ \ \ \ [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]\n\ \ \ \ \ \ \ \ \ \ endpoint = ["https://bqr1dr1n.mirror.aliyuncs.com"]' /etc/containerd/config.toml
-#sed -i '/\[plugins\.\"io\.containerd\.grpc\.v1\.cri\"\.registry\.mirrors\]/ a\\ \ \ \ \ \ \ \ [plugins."io.containerd.grpc.v1.cri".registry.mirrors."k8s.gcr.io"]\n\ \ \ \ \ \ \ \ \ \ endpoint = ["https://registry.aliyuncs.com/k8sxio"]' /etc/containerd/config.toml
+
 systemctl daemon-reload
 systemctl enable containerd --now >/dev/null 2>&1
 systemctl restart containerd
