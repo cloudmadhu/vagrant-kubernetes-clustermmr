@@ -7,13 +7,13 @@
 #
 
 echo "[TASK 0] Setting TimeZone"
-timedatectl set-timezone Asia/Shanghai
+timedatectl set-timezone America/New_York
 
 echo "[TASK 1] Setting DNS"
 cat >/etc/systemd/resolved.conf <<EOF
 [Resolve]
 DNS=8.8.8.8
-FallbackDNS=223.5.5.5
+FallbackDNS=1.1.1.1
 EOF
 systemctl daemon-reload
 systemctl restart systemd-resolved.service
@@ -22,20 +22,20 @@ ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
 
 echo "[TASK 2] Setting Ubuntu System Mirrors"
 cat >/etc/apt/sources.list<<EOF
-deb http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
-deb-src http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
+# deb http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
+# deb-src http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse
 
-deb http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
-deb-src http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
+# deb http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
+# deb-src http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse
 
-deb http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
-deb-src http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
+# deb http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
+# deb-src http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse
 
-deb http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse
-deb-src http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse
+# deb http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse
+# deb-src http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse
 
-deb http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
-deb-src http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
+# deb http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
+# deb-src http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse
 EOF
 apt update -qq >/dev/null 2>&1
 
@@ -71,19 +71,19 @@ containerd config default > /etc/containerd/config.toml
 # 替换https://registry-1.docker.io为https://registry.cn-hangzhou.aliyuncs.com
 # 设置docker.io的镜像地址为https://bqr1dr1n.mirror.aliyuncs.com
 # 设置k8s.gcr.io的镜像地址为https://registry.aliyuncs.com/k8sxio
-sed -i "s#k8s.gcr.io#registry.aliyuncs.com/k8sxio#g"  /etc/containerd/config.toml
+#sed -i "s#k8s.gcr.io#registry.aliyuncs.com/k8sxio#g"  /etc/containerd/config.toml
 sed -i 's#SystemdCgroup = false#SystemdCgroup = true#g' /etc/containerd/config.toml
-sed -i "s#https://registry-1.docker.io#https://registry.cn-hangzhou.aliyuncs.com#g"  /etc/containerd/config.toml
-sed -i '/\[plugins\.\"io\.containerd\.grpc\.v1\.cri\"\.registry\.mirrors\]/ a\\ \ \ \ \ \ \ \ [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]\n\ \ \ \ \ \ \ \ \ \ endpoint = ["https://bqr1dr1n.mirror.aliyuncs.com"]' /etc/containerd/config.toml
-sed -i '/\[plugins\.\"io\.containerd\.grpc\.v1\.cri\"\.registry\.mirrors\]/ a\\ \ \ \ \ \ \ \ [plugins."io.containerd.grpc.v1.cri".registry.mirrors."k8s.gcr.io"]\n\ \ \ \ \ \ \ \ \ \ endpoint = ["https://registry.aliyuncs.com/k8sxio"]' /etc/containerd/config.toml
+#sed -i "s#https://registry-1.docker.io#https://registry.cn-hangzhou.aliyuncs.com#g"  /etc/containerd/config.toml
+#sed -i '/\[plugins\.\"io\.containerd\.grpc\.v1\.cri\"\.registry\.mirrors\]/ a\\ \ \ \ \ \ \ \ [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]\n\ \ \ \ \ \ \ \ \ \ endpoint = ["https://bqr1dr1n.mirror.aliyuncs.com"]' /etc/containerd/config.toml
+#sed -i '/\[plugins\.\"io\.containerd\.grpc\.v1\.cri\"\.registry\.mirrors\]/ a\\ \ \ \ \ \ \ \ [plugins."io.containerd.grpc.v1.cri".registry.mirrors."k8s.gcr.io"]\n\ \ \ \ \ \ \ \ \ \ endpoint = ["https://registry.aliyuncs.com/k8sxio"]' /etc/containerd/config.toml
 systemctl daemon-reload
 systemctl enable containerd --now >/dev/null 2>&1
 systemctl restart containerd
 
 echo "[TASK 8] Add apt repo for kubernetes"
-curl -s https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | apt-key add - 
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - 
 cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
-deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main
+deb http://apt.kubernetes.io/ kubernetes-xenial main
 EOF
 apt update -qq >/dev/null 2>&1
 
