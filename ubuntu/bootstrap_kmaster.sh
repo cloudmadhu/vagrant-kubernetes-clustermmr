@@ -14,7 +14,7 @@ ctr images pull k8s.gcr.io/coredns/coredns:v1.8.4
 ctr -n k8s.io images pull docker.io/v5cn/coredns:v1.8.4
 ctr -n k8s.io images tag docker.io/v5cn/coredns:v1.8.4
 EOF
-chmod +x images.sh && ./images.sh >/dev/null 2>&1
+chmod +x images.sh && ./images.sh 
 
 echo "[TASK 2] Initialize Kubernetes Cluster"
 kubeadm init \
@@ -25,7 +25,7 @@ kubeadm init \
   --pod-network-cidr=192.168.0.0/16 > /root/kubeinit.log 2>/dev/null
 
 echo "[TASK 3] Deploy Calico network"
-kubectl --kubeconfig=/etc/kubernetes/admin.conf create -f https://docs.projectcalico.org/v3.18/manifests/calico.yaml >/dev/null 2>&1
+kubectl --kubeconfig=/etc/kubernetes/admin.conf create -f https://docs.projectcalico.org/v3.18/manifests/calico.yaml 
 
 echo "[TASK 4] Generate and save cluster join command to /joincluster.sh"
 kubeadm token create --print-join-command > /root/joincluster.sh 2>/dev/null
