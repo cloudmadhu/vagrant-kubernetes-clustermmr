@@ -18,14 +18,14 @@ chmod +x images.sh && ./images.sh
 
 echo "[TASK 2] Initialize Kubernetes Cluster"
 kubeadm init \
-  --apiserver-advertise-address=192.168.56.100 \
+  --apiserver-advertise-address=192.168.10.100 \
   --control-plane-endpoint=kmaster.k8s.com \
   --kubernetes-version v1.22.0 \
   --image-repository registry.aliyuncs.com/k8sxio \
-  --pod-network-cidr=192.168.0.0/16 > /root/kubeinit.log 2>/dev/null
+  --pod-network-cidr=192.168.0.0/16 > /root/kubeinit.log 
 
 echo "[TASK 3] Deploy Calico network"
 kubectl --kubeconfig=/etc/kubernetes/admin.conf create -f https://docs.projectcalico.org/v3.18/manifests/calico.yaml 
 
 echo "[TASK 4] Generate and save cluster join command to /joincluster.sh"
-kubeadm token create --print-join-command > /root/joincluster.sh 2>/dev/null
+kubeadm token create --print-join-command > /root/joincluster.sh 
