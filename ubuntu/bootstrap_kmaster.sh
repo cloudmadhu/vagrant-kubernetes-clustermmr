@@ -2,18 +2,22 @@
 
 echo "[TASK 1] Pull required containers"
 
-kubeadm config images list | grep -v 'coredns' > images.sh
+kubeadm config images list | grep -v 'coredns' | sed 's#k8s.gcr.io#ctr images pull k8s.gcr.io#g' > images.sh
 cat >> images.sh<<EOF
-ctr images pull k8s.gcr.io/kube-apiserver:v1.22.2
-ctr images pull k8s.gcr.io/kube-controller-manager:v1.22.2
-ctr images pull k8s.gcr.io/kube-scheduler:v1.22.2
-ctr images pull k8s.gcr.io/kube-proxy:v1.22.2
-ctr images pull k8s.gcr.io/pause:3.5
-ctr images pull k8s.gcr.io/etcd:3.5.0-0
-ctr images pull k8s.gcr.io/coredns/coredns:v1.8.4
 ctr -n k8s.io images pull docker.io/v5cn/coredns:v1.8.4
-ctr -n k8s.io images tag docker.io/v5cn/coredns:v1.8.4
+ctr -n k8s.io images tag docker.io/v5cn/coredns:v1.8.4 registry.aliyuncs.com/k8sxio/coredns:v1.8.4
+# ctr images pull k8s.gcr.io/kube-apiserver:v1.22.2
+# ctr images pull k8s.gcr.io/kube-controller-manager:v1.22.2
+# ctr images pull k8s.gcr.io/kube-scheduler:v1.22.2
+# ctr images pull k8s.gcr.io/kube-proxy:v1.22.2
+# ctr images pull k8s.gcr.io/pause:3.5
+# ctr images pull k8s.gcr.io/etcd:3.5.0-0
+# ctr images pull k8s.gcr.io/coredns/coredns:v1.8.4
+
+#ctr -n k8s.io images pull docker.io/v5cn/coredns:v1.8.4
+#ctr -n k8s.io images tag docker.io/v5cn/coredns:v1.8.4
 EOF
+cat images.sh
 chmod +x images.sh && ./images.sh 
 
 echo "[TASK 2] Initialize Kubernetes Cluster"
