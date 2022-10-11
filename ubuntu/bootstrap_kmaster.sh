@@ -21,7 +21,7 @@ kubeadm init \
   --apiserver-advertise-address=192.168.10.100 \
   --control-plane-endpoint=kmaster.k8s.com \
   --kubernetes-version v1.22.0 \
-  --image-repository registry.aliyuncs.com/k8sxio \
+  --image-repository registry.k8s.io \
   --pod-network-cidr=192.168.0.0/16 > /root/kubeinit.log 
 
 echo "[TASK 3] Deploy Calico network"
